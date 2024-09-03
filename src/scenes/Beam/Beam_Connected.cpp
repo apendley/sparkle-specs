@@ -34,12 +34,12 @@ void Beam_Connected::update(uint32_t dt) {
             scene.hue = 0.0;
         }
     }
-    else if (gamepad.fell(gamepad.buttonC)) {
+    else if (gamepad.wasReleased(gamepad.buttonC)) {
         settings.beamSetHue(scene.hue);
         settings.beamSetSaturation(scene.saturation);
     }
 
-    if (gamepad.rose(gamepad.buttonZ) || softGamepad.rose(softGamepad.button1)) {
+    if (gamepad.wasPressed(gamepad.buttonZ) || softGamepad.wasPressed(softGamepad.button1)) {
         scene.gotoNextBeamMode();
     }
 }

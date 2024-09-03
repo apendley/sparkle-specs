@@ -4,7 +4,7 @@
 
 namespace {
     const int32_t gazeTimeMin = 100;
-    const int32_t gazeTimeMax = 300;
+    const int32_t gazeTimeMax = 250;
     const int32_t countdownMax = 2000;
 }
 
@@ -36,26 +36,30 @@ void Pupils_Disconnected::update(uint32_t dt) {
 }
 
 void Pupils_Disconnected::chooseNextPupilPosition() {
-        // We've arrived at the next pupil position.
-        pupilX = nextPupilX;
-        pupilY = nextPupilY;        
+    // We've arrived at the next pupil position.
+    pupilX = nextPupilX;
+    pupilY = nextPupilY;        
 
-        // Loop until we randomly choose an eye position within the circle.
-        do {
-            nextPupilX = random(6); 
-            nextPupilY = random(4);
-            dX = nextPupilX - 3;
-            dY = nextPupilY - 2;
-        } 
-        while(isEyePositionValid(dX, dY));
+    // Pick a new position, staying within bounds.
+    if (scene.hasMonsterPupils) {
+        nextPupilX = random(7) * 3;
+        nextPupilX = max(3, min(nextPupilX, 20));
 
-        // Distance to next pupil position.
-        dX = nextPupilX - pupilX;
-        dY = nextPupilY - pupilY;
-
-        // Duration of eye movement.
-        gazeTime = random(gazeTimeMin, gazeTimeMax);
-
-        // Count to end of next pupil movement.
-        gazeCountdown = random(gazeTime, countdownMax);
+        nextPupilY = random(4) * 3 - 3;
+        nextPupilY = max(-2, min(nextPupilY, 7));
+    } 
+    else {
+        nextPupilX = random(5) * 3 + 3;
+        nextPupilY = random(4) * 3;
     }
+
+    // Distance to next pupil position.
+    dX = nextPupilX - pupilX;
+    dY = nextPupilY - pupilY;
+
+    // Duration of eye movement.
+    gazeTime = random(gazeTimeMin, gazeTimeMax);
+
+    // Count to end of next pupil movement.
+    gazeCountdown = random(gazeTime, countdownMax);
+}

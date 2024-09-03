@@ -66,11 +66,11 @@ public:
         return (buttons & previousButtons) & b;
     }
     
-    inline bool fell(uint8_t b) {
+    inline bool wasReleased(uint8_t b) {
         return (~buttons & previousButtons) & b;
     }
     
-    inline bool rose(uint8_t b) {
+    inline bool wasPressed(uint8_t b) {
         return (buttons & ~previousButtons) & b;
     }
     

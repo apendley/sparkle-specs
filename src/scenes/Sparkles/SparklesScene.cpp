@@ -57,11 +57,11 @@ void SparklesScene::update(uint32_t dt) {
             hue = 0.0;
         }
     }
-    else if (gamepad.fell(gamepad.buttonC)) {
+    else if (gamepad.wasReleased(gamepad.buttonC)) {
         settings.sparklesSetUseCustomColor(useCustomColor);        
         settings.sparklesSetHue(hue);
     } 
-    else if (gamepad.rose(gamepad.buttonZ)) {
+    else if (gamepad.wasPressed(gamepad.buttonZ)) {
         useCustomColor = false;
         settings.sparklesSetUseCustomColor(useCustomColor);
     }    

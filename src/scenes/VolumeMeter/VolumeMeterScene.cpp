@@ -37,13 +37,13 @@ void VolumeMeterScene::update(uint32_t dt) {
             hue = 0.0;
         }
     }
-    else if (gamepad.fell(gamepad.buttonC)) {
+    else if (gamepad.wasReleased(gamepad.buttonC)) {
         settings.volumeMeterSetUseCustomColor(useCustomColor);
         settings.volumeMeterSetHue(hue);
         settings.volumeMeterSetSaturation(saturation);
         
     }
-    else if (gamepad.rose(gamepad.buttonZ)) {
+    else if (gamepad.wasPressed(gamepad.buttonZ)) {
         useCustomColor = false;
         settings.volumeMeterSetUseCustomColor(useCustomColor);
     }    

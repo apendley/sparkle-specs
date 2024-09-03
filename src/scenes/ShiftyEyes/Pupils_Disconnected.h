@@ -21,10 +21,6 @@ public:
     virtual void update(uint32_t dt);
 
 private:
-    bool isEyePositionValid(int8_t dx, int8_t dy) {
-        return (dx * dx + dy * dy) >= 8;
-    }
-
     void chooseNextPupilPosition();
 
 private:

@@ -40,11 +40,6 @@ public:
         eyelidPosition = min(pos, maxEyelidPosition);
     }
 
-    Color::RGB pupilColor = Color::RGB(255, 0, 0);
-
-    static constexpr uint8_t ringBrightness = 80;
-    Color::RGB ringColor = Color::RGB(ringBrightness, ringBrightness, 0);
-    
 private:
     int8_t pupilX = 3;
     int8_t pupilY = 3;

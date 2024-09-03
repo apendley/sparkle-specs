@@ -21,11 +21,13 @@ private:
     } __attribute__((packed));
 
     struct MemoryMap {
-        Header header = {0x3141, 3};
+        Header header = {0x3141, 4};
 
         uint8_t sceneIndex = 0;
 
-        Color::RGB shiftyEyesRingColor = Color::RGB(80, 80, 0);
+        uint8_t shiftyEyesHasMonsterPupils = false;
+        uint16_t shiftyEyesRingHue = 10922;
+        uint16_t shiftyEyesPupilHue = 0;
 
         uint8_t beamMode = 0;
         uint16_t beamHue = 0;
@@ -65,8 +67,14 @@ public:
     uint8_t sceneIndex() const;
     void setSceneIndex(uint8_t i);
 
-    Color::RGB shiftyEyesGetRingColor();
-    void shiftyEyesSetRingColor(const Color::RGB& c);
+    uint16_t shiftyEyesGetRingHue();
+    void shiftyEyesSetRingHue(uint16_t h);
+
+    uint16_t shiftyEyesGetPupilHue();
+    void shiftyEyesSetPupilHue(uint16_t h);
+
+    bool shiftyEyesHasMonsterPupils();
+    void shiftyEyesSetHasMonsterPupils(bool has);
 
     uint8_t beamMode() const;
     void beamSetMode(uint8_t m);

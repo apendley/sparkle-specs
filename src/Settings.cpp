@@ -83,13 +83,31 @@ void Settings::setSceneIndex(uint8_t i) {
     write(offsetof(MemoryMap, sceneIndex), i, "Scene index saved!");
 }
 
-Color::RGB Settings::shiftyEyesGetRingColor() {
-    return memoryMap.shiftyEyesRingColor;
+uint16_t Settings::shiftyEyesGetRingHue() {
+    return memoryMap.shiftyEyesRingHue;
 }
 
-void Settings::shiftyEyesSetRingColor(const Color::RGB& c) {
-    memoryMap.shiftyEyesRingColor = c;
-    writeObject(offsetof(MemoryMap, shiftyEyesRingColor), c, "Shifty eyes ring color saved!");
+void Settings::shiftyEyesSetRingHue(uint16_t h) {
+    memoryMap.shiftyEyesRingHue = h;
+    writeObject(offsetof(MemoryMap, shiftyEyesRingHue), h, "Shifty eyes ring color saved!");
+}
+
+uint16_t Settings::shiftyEyesGetPupilHue() {
+    return memoryMap.shiftyEyesPupilHue;
+}
+
+void Settings::shiftyEyesSetPupilHue(uint16_t h) {
+    memoryMap.shiftyEyesPupilHue = h;
+    writeObject(offsetof(MemoryMap, shiftyEyesPupilHue), h, "Shifty pupil hue saved!");
+}
+
+bool Settings::shiftyEyesHasMonsterPupils() {
+    return memoryMap.shiftyEyesHasMonsterPupils;
+}
+
+void Settings::shiftyEyesSetHasMonsterPupils(bool has) {
+    memoryMap.shiftyEyesHasMonsterPupils = has;
+    write(offsetof(MemoryMap, shiftyEyesHasMonsterPupils), has, "Shifty eyes has monster pupils saved!");
 }
 
 uint8_t Settings::beamMode() const {

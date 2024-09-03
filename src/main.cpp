@@ -36,7 +36,7 @@
 // #define LOGGER Serial
 #include "Logger.h"
 
-static const char* revision = "1.0.0";
+static const char* revision = "1.0.1";
 
 ////////////////////////////
 // Scene management
@@ -273,13 +273,13 @@ void initSettings(bool eepromInitialized) {
             delay(10);
             modeButton.update();
 
-            if (modeButton.isOn()) {
+            if (modeButton.isDown()) {
                 break;
             }
         }
 
         // If the mode button is pressed, the user wants to resetore default settings.
-        eraseEeprom = modeButton.isOn();
+        eraseEeprom = modeButton.isDown();
 
         // Make the LEDs blue to acknowledge that we are erasing the EEPROM.
         if (eraseEeprom) {
@@ -299,7 +299,7 @@ void initSettings(bool eepromInitialized) {
 
     if (eraseEeprom) {
         // Wait for the mode button to be released before we continue
-        while(modeButton.isOn()) {
+        while(modeButton.isDown()) {
             modeButton.update();
             delay(10);
         }
@@ -463,7 +463,7 @@ void previousScene() {
 void updateModeSelection(uint32_t dt) {
    modeButton.update();
 
-    if (modeButton.rose()) {
+    if (modeButton.wasPressed()) {
         if (isPairing) {
             LOGLN("Leaving pairing mode");
             isPairing = false;
@@ -474,7 +474,7 @@ void updateModeSelection(uint32_t dt) {
             ignoreModeButtonFell = false;            
         }
     }
-    else if (modeButton.fell()) {
+    else if (modeButton.wasReleased()) {
         if (ignoreModeButtonFell) {
             ignoreModeButtonFell = false;
         }
@@ -482,7 +482,7 @@ void updateModeSelection(uint32_t dt) {
             nextScene();
         }
     }
-    else if (modeButton.isOn() && !isPairing) {
+    else if (modeButton.isDown() && !isPairing) {
         bool wasHeld = pairingHeldTime < pairingHoldDuration;
         pairingHeldTime += dt;
         bool isFinishedHolding = pairingHeldTime >= pairingHoldDuration;
@@ -516,10 +516,10 @@ void updateModeSelection(uint32_t dt) {
             LOGLN("Entering pairing mode...");
         }
     }
-    else if (softGamepad.rose(softGamepad.buttonRight) || gamepadShake.shakeDetected()) {
+    else if (softGamepad.wasPressed(softGamepad.buttonRight) || gamepadShake.shakeDetected()) {
         nextScene();
     }
-    else if (softGamepad.rose(softGamepad.buttonLeft)) {
+    else if (softGamepad.wasPressed(softGamepad.buttonLeft)) {
         previousScene();
     } 
 }

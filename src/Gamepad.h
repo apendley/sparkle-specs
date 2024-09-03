@@ -52,11 +52,11 @@ public:
         return (report.buttons & previousReport.buttons) & b;
     }
     
-    inline bool fell(uint32_t b) {
+    inline bool wasReleased(uint32_t b) {
         return (~report.buttons & previousReport.buttons) & b;
     }
     
-    inline bool rose(uint32_t b) {
+    inline bool wasPressed(uint32_t b) {
         return (report.buttons& ~previousReport.buttons) & b;
     }
     

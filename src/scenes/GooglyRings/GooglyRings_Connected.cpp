@@ -63,7 +63,7 @@ void GooglyRings_Connected::update(uint32_t dt) {
             scene.hue = 0.0;
         }
     }    
-    else if (gamepad.fell(gamepad.buttonC)) {
+    else if (gamepad.wasReleased(gamepad.buttonC)) {
         Settings& settings = getDevice().settings;
         settings.googlyRingsSetHue(scene.hue);
         settings.googlyRingsSetSaturation(scene.saturation);

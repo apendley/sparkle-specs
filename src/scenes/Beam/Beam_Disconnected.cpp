@@ -81,15 +81,15 @@ void Beam_Disconnected::update(uint32_t dt) {
     // Update input
     bool speedChanged = false;
 
-    if (softGamepad.rose(softGamepad.button1)) {
+    if (softGamepad.wasPressed(softGamepad.button1)) {
         speedChanged = speedIndex != 0;        
         speedIndex = 0;
     }
-    else if (softGamepad.rose(softGamepad.button2)) {
+    else if (softGamepad.wasPressed(softGamepad.button2)) {
         speedChanged = speedIndex != 1;
         speedIndex = 1;
     }
-    else if (softGamepad.rose(softGamepad.button3)) {
+    else if (softGamepad.wasPressed(softGamepad.button3)) {
         speedChanged = speedIndex != 2;
         speedIndex = 2;
     }    
@@ -99,7 +99,7 @@ void Beam_Disconnected::update(uint32_t dt) {
         getDevice().settings.beamDisconnectedSetSpeed(speedIndex);        
     }
 
-    if (softGamepad.rose(softGamepad.button4)) {
+    if (softGamepad.wasPressed(softGamepad.button4)) {
         scene.gotoNextBeamMode();
     }
 }

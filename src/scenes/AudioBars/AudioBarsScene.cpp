@@ -38,17 +38,17 @@ void AudioBarsScene::update(uint32_t dt) {
             hue = 0.0;
         }
     }
-    else if (gamepad.fell(gamepad.buttonC)) {
+    else if (gamepad.wasReleased(gamepad.buttonC)) {
         settings.audioBarsSetUseCustomColor(useCustomColor);
         settings.audioBarsSetHue(hue);
         settings.audioBarsSetSaturation(saturation);
     } 
-    else if (gamepad.rose(gamepad.buttonZ)) {
+    else if (gamepad.wasPressed(gamepad.buttonZ)) {
         useCustomColor = false;
         settings.audioBarsSetUseCustomColor(useCustomColor);
     }
 
-    if (softGamepad.rose(softGamepad.button1)) {
+    if (softGamepad.wasPressed(softGamepad.button1)) {
         snowCapped = !snowCapped;
         settings.audioBarsSetSnowCapped(snowCapped);
     }

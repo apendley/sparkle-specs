@@ -42,15 +42,15 @@ public:
         return state != lastState;
     }
     
-    bool rose() const {
-        return changed() && isOn();
+    bool wasPressed() const {
+        return changed() && isDown();
     }
     
-    bool fell() const {
-        return changed() && !isOn();
+    bool wasReleased() const {
+        return changed() && !isDown();
     }
 
-    virtual bool isOn() const {
+    virtual bool isDown() const {
         return getState();
     }
 
@@ -94,7 +94,7 @@ public:
         return digitalRead(pin);
     }
 
-    virtual bool isOn() const {
+    virtual bool isDown() const {
         if (mode != Mode::pullup) {
             return getState();
         }

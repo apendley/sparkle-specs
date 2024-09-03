@@ -20,10 +20,10 @@ FSMState* EyeLids_Idle::transition() {
         return nullptr;
     }
 
-    if (gamepad.rose(gamepad.buttonZ)) {
+    if (gamepad.wasPressed(gamepad.buttonZ)) {
         return new EyeLids_Blink(scene);
     }
-    else if (gamepad.rose(gamepad.buttonC)) {
+    else if (gamepad.wasPressed(gamepad.buttonC)) {
         return new EyeLids_Glare(scene);
     }
 

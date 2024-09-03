@@ -44,12 +44,12 @@ void MarqueeScene::update(uint32_t dt) {
             hue = 0.0;
         }
     }
-    else if (gamepad.fell(gamepad.buttonC)) {
+    else if (gamepad.wasReleased(gamepad.buttonC)) {
         settings.marqueeSetUseCustomColor(useCustomColor);
         settings.marqueeSetHue(hue);
         settings.marqueeSetSaturation(saturation);
     }
-    else if (gamepad.rose(gamepad.buttonZ)) {
+    else if (gamepad.wasPressed(gamepad.buttonZ)) {
         useCustomColor = false;        
         settings.marqueeSetUseCustomColor(useCustomColor);
     }
@@ -66,15 +66,15 @@ void MarqueeScene::update(uint32_t dt) {
         settings.marqueeSetScrollDelay(scrollDelay);
     }
 
-    if (softGamepad.rose(softGamepad.button1)) {
+    if (softGamepad.wasPressed(softGamepad.button1)) {
         scrollDelay = maxScrollDelay;
         settings.marqueeSetScrollDelay(scrollDelay);
     }
-    else if (softGamepad.rose(softGamepad.button2)) {
+    else if (softGamepad.wasPressed(softGamepad.button2)) {
         scrollDelay = defaultScrollDelay;
         settings.marqueeSetScrollDelay(scrollDelay);
     }
-    else if (softGamepad.rose(softGamepad.button3)) {
+    else if (softGamepad.wasPressed(softGamepad.button3)) {
         scrollDelay = minScrollDelay;
         settings.marqueeSetScrollDelay(scrollDelay);
     }
