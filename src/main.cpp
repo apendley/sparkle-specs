@@ -133,6 +133,7 @@ uint32_t millisLast = 0;
 // Forward declarations
 ////////////////////////////
 bool initGlasses();
+void initSettings(bool eepromInitialized);
 void initBle();
 
 void initScene();
@@ -194,37 +195,10 @@ void setup() {
     // Forward signal to pdmRecorder when data is ready.
     PDM.onReceive(readPdmData);
 
-    // Initialize and read mode button. If pressed at launch, erase the eeprom.
+    // Initialize mode button.
     modeButton.begin();    
-    modeButton.update();
-    bool eraseEeprom = modeButton.isOn();
 
-    if (!eepromInitialized) {
-        LOGLN("EEPROM not found, or failed to initialize.");
-    }    
-
-    settings.begin(eepromInitialized ? &eeprom : nullptr, eraseEeprom);
-
-    if (eraseEeprom) {
-        // Make all the LEDs red
-        const Color::RGB red(32, 0, 0);
-        glasses.fillScreen(red.packed565());
-        glasses.left_ring.fill(red.packed());
-        glasses.right_ring.fill(red.packed());
-        glasses.show();
-
-        // Wait for the mode button to be released before we continue
-        while(modeButton.isOn()) {
-            modeButton.update();
-            delay(10);
-        }
-
-        // Turn off all the LEDs again
-        glasses.fill(0);
-        glasses.left_ring.fill(0);
-        glasses.right_ring.fill(0);
-        glasses.show();        
-    }
+    initSettings(eepromInitialized);
 
     // Everything else
     initBle();
@@ -285,6 +259,57 @@ bool initGlasses() {
     glasses.show();
 
     return true;
+}
+
+void initSettings(bool eepromInitialized) {
+    // We'll need to know if the user wants to do this when we initialize the settings.
+    bool eraseEeprom = false;
+
+    if (eepromInitialized) {
+        // Wait just a little bit to give the use a chance to reset the eeprom if they want.
+        // If the press the button stop waiting to improve responsiveness.
+        uint32_t startTime = millis();
+        while ((millis() - startTime) < 250) {
+            delay(10);
+            modeButton.update();
+
+            if (modeButton.isOn()) {
+                break;
+            }
+        }
+
+        // If the mode button is pressed, the user wants to resetore default settings.
+        eraseEeprom = modeButton.isOn();
+
+        // Make the LEDs blue to acknowledge that we are erasing the EEPROM.
+        if (eraseEeprom) {
+            const Color::RGB c(0, 0, 32);
+            glasses.fillScreen(c.packed565());
+            glasses.left_ring.fill(c.packed());
+            glasses.right_ring.fill(c.packed());
+            glasses.show();
+        }
+    } 
+    else {
+        LOGLN("EEPROM not found, or failed to initialize.");
+    }    
+
+    // Initialize the settings based on the information we've gathered
+    settings.begin(eepromInitialized ? &eeprom : nullptr, eraseEeprom);
+
+    if (eraseEeprom) {
+        // Wait for the mode button to be released before we continue
+        while(modeButton.isOn()) {
+            modeButton.update();
+            delay(10);
+        }
+
+        // Turn off all the LEDs again
+        glasses.fill(0);
+        glasses.left_ring.fill(0);
+        glasses.right_ring.fill(0);
+        glasses.show();        
+    }
 }
 
 void initBle() {
