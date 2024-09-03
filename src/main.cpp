@@ -205,6 +205,27 @@ void setup() {
 
     settings.begin(eepromInitialized ? &eeprom : nullptr, eraseEeprom);
 
+    if (eraseEeprom) {
+        // Make all the LEDs red
+        const Color::RGB red(32, 0, 0);
+        glasses.fillScreen(red.packed565());
+        glasses.left_ring.fill(red.packed());
+        glasses.right_ring.fill(red.packed());
+        glasses.show();
+
+        // Wait for the mode button to be released before we continue
+        while(modeButton.isOn()) {
+            modeButton.update();
+            delay(10);
+        }
+
+        // Turn off all the LEDs again
+        glasses.fill(0);
+        glasses.left_ring.fill(0);
+        glasses.right_ring.fill(0);
+        glasses.show();        
+    }
+
     // Everything else
     initBle();
     initScene();
