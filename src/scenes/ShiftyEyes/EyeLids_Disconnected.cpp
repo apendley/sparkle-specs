@@ -10,7 +10,7 @@ namespace {
 }
 
 void EyeLids_Disconnected::enter() {
-    scene.eyes.setEyelidPosition(0);
+    scene.setEyelidPosition(0);
     blinkCountdown = random(countdownMin, countdownMax);
 }
 
@@ -20,9 +20,9 @@ void EyeLids_Disconnected::update(uint32_t dt) {
     if (blinkCountdown < countdownMin) {
         uint8_t frameIndex = blinkFrameCount - 1 - (blinkCountdown / blinkAnimationRate);
         uint8_t blinkRowIndex = blinkRowIndices[frameIndex];
-        scene.eyes.setEyelidPosition(blinkRowIndex);
+        scene.setEyelidPosition(blinkRowIndex);
     } else {
-        scene.eyes.setEyelidPosition(0);
+        scene.setEyelidPosition(0);
     }
 
     // Done blinking, start a new countdown!

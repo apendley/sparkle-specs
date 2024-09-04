@@ -9,8 +9,8 @@ namespace {
 }
 
 void Pupils_Disconnected::enter() {
-        pupilX = nextPupilX = scene.eyes.getPupilX();
-        pupilY = nextPupilY = scene.eyes.getPupilY();
+        xPupil = xPupilNext = scene.xPupil;
+        yPupil = yPupilNext = scene.yPupil;
         dX = 0;
         dY = 0;
         gazeTime = gazeTimeMin;
@@ -22,8 +22,8 @@ void Pupils_Disconnected::update(uint32_t dt) {
 
     if (gazeCountdown <= gazeTime) {
         // Pupils are moving, set interpolated position.
-        scene.eyes.setPupilX(nextPupilX - (dX * gazeCountdown / gazeTime));
-        scene.eyes.setPupilY(nextPupilY - (dY * gazeCountdown / gazeTime));
+        scene.xPupil = xPupilNext - (dX * gazeCountdown / gazeTime);
+        scene.yPupil = yPupilNext - (dY * gazeCountdown / gazeTime);
 
         if (gazeCountdown <= 0) {
             chooseNextPupilPosition();
@@ -31,31 +31,32 @@ void Pupils_Disconnected::update(uint32_t dt) {
     }
     else {
         // Pupils are stationary.
-        scene.eyes.setPupilPosition(pupilX, pupilY);
+        scene.xPupil = xPupil;
+        scene.yPupil = yPupil;
     }    
 }
 
 void Pupils_Disconnected::chooseNextPupilPosition() {
     // We've arrived at the next pupil position.
-    pupilX = nextPupilX;
-    pupilY = nextPupilY;        
+    xPupil = xPupilNext;
+    yPupil = yPupilNext;        
 
     // Pick a new position, staying within bounds.
     if (scene.hasMonsterPupils) {
-        nextPupilX = random(7) * 3;
-        nextPupilX = max(3, min(nextPupilX, 20));
+        xPupilNext = random(7) * 3;
+        xPupilNext = max(3, min(xPupilNext, 20));
 
-        nextPupilY = random(4) * 3 - 3;
-        nextPupilY = max(-2, min(nextPupilY, 7));
+        yPupilNext = random(4) * 3 - 3;
+        yPupilNext = max(-2, min(yPupilNext, 7));
     } 
     else {
-        nextPupilX = random(5) * 3 + 3;
-        nextPupilY = random(4) * 3;
+        xPupilNext = random(5) * 3 + 3;
+        yPupilNext = random(4) * 3;
     }
 
     // Distance to next pupil position.
-    dX = nextPupilX - pupilX;
-    dY = nextPupilY - pupilY;
+    dX = xPupilNext - xPupil;
+    dY = yPupilNext - yPupil;
 
     // Duration of eye movement.
     gazeTime = random(gazeTimeMin, gazeTimeMax);

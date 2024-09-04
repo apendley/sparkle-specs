@@ -5,7 +5,6 @@
 #include <Arduino.h>
 #include "Scene.h"
 #include "FSM.h"
-#include "Eyes.h"
 
 class ShiftyEyesScene: public Scene {
 public:
@@ -18,10 +17,23 @@ public:
     virtual void gamepadDisconnected() override;
     virtual void receivedColor(const Color::RGB& c) override;
 
-    Eyes eyes;
+    static constexpr uint8_t maxEyelidPosition = 7;
+
+    uint8_t getEyelidPosition() const {
+        return eyelidPosition;
+    }
+
+    void setEyelidPosition(uint8_t pos) {
+        eyelidPosition = min(pos, maxEyelidPosition);
+    }
+
+    bool hasMonsterPupils = false;
+
+    int8_t xPupil = 9;
+    int8_t yPupil = 9;
+
     FSM pupilsFSM;
     FSM eyelidsFSM;
-    bool hasMonsterPupils = false;
 
 private:
     void draw();
@@ -35,4 +47,7 @@ private:
 
     static constexpr uint8_t ringBrightness = 100;
     float ringHue = 10922;
+
+    // 0 = fully open, maxEyelidPosition = fully closed
+    uint8_t eyelidPosition = 0;
 };

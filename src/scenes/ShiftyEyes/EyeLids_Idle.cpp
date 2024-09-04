@@ -4,11 +4,11 @@
 #include "Eyelids_Glare.h"
 
 void EyeLids_Idle::update(uint32_t) {
-    uint8_t eyelidPosition = scene.eyes.getEyelidPosition();
+    uint8_t eyelidPosition = scene.getEyelidPosition();
 
     if (eyelidPosition > 0) {
         eyelidPosition -= 1;
-        scene.eyes.setEyelidPosition(eyelidPosition);    
+        scene.setEyelidPosition(eyelidPosition);    
     } 
 }
 
@@ -16,7 +16,7 @@ FSMState* EyeLids_Idle::transition() {
     Gamepad& gamepad = getDevice().gamepad;
 
     // Wait until almost back up before allowing transitions
-    if (scene.eyes.getEyelidPosition() > 1) {
+    if (scene.getEyelidPosition() > 1) {
         return nullptr;
     }
 

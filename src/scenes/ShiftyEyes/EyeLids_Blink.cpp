@@ -16,11 +16,11 @@ void EyeLids_Blink::update(uint32_t dt) {
     if (animationTimer <= 0) {
         animationTimer += animationInterval;
 
-        uint8_t eyelidPosition = scene.eyes.getEyelidPosition();
+        uint8_t eyelidPosition = scene.getEyelidPosition();
 
-        if (eyelidPosition < Eyes::maxEyelidPosition) {
+        if (eyelidPosition < scene.maxEyelidPosition) {
             eyelidPosition += 1;
-            scene.eyes.setEyelidPosition(eyelidPosition);    
+            scene.setEyelidPosition(eyelidPosition);    
         } 
     }
 }

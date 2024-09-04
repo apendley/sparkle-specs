@@ -13,8 +13,9 @@ ShiftyEyesScene::ShiftyEyesScene(Device& d)
 void ShiftyEyesScene::enter() {
     Settings& settings = getDevice().settings;
 
-    eyes.setPupilPosition(9, 9);
-    eyes.setEyelidPosition(0);
+    yPupil = 9;
+    xPupil = 9;
+    setEyelidPosition(0);
 
     pupilHue = settings.shiftyEyesGetPupilHue();
     ringHue = settings.shiftyEyesGetRingHue();
@@ -82,17 +83,15 @@ void ShiftyEyesScene::drawPupils() {
     Glasses& glasses = getDevice().glasses;
     auto canvas = glasses.getCanvas();
 
-    int8_t x = eyes.getPupilX();
-    int8_t y = eyes.getPupilY();
     uint16_t c = Color::HSV(pupilHue, 255, pupilBrightness).toRGB().gammaApplied().packed565();
     
     if (hasMonsterPupils) {
-        canvas->fillRect(x, y + 1, 3, 9, c);
-        canvas->fillRect(x + 30, y + 1, 3, 9, c);
+        canvas->fillRect(xPupil, yPupil + 1, 3, 9, c);
+        canvas->fillRect(xPupil + 30, yPupil + 1, 3, 9, c);
     }
     else {
-        canvas->fillRect(x, y, 6, 6, c);
-        canvas->fillRect(x + 30, y, 6, 6, c);
+        canvas->fillRect(xPupil, yPupil, 6, 6, c);
+        canvas->fillRect(xPupil + 30, yPupil, 6, 6, c);
     }
 }
 
@@ -110,8 +109,8 @@ void ShiftyEyesScene::drawRingRow(uint8_t index, const Color::RGB& color) {
 
 void ShiftyEyesScene::drawEyeOutlines() {
     Glasses& glasses = getDevice().glasses;
-    uint8_t eyelidPosition = eyes.getEyelidPosition();
-
+    
+    uint8_t eyelidPosition = getEyelidPosition();
     Color::RGB ringColor = Color::HSV(ringHue, 255, ringBrightness).toRGB().gammaApplied();
 
     // Fill in the rect between the rings, in case the pupils bleed over a little.

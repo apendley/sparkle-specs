@@ -24,10 +24,10 @@ private:
     void chooseNextPupilPosition();
 
 private:
-    int8_t pupilX;
-    int8_t pupilY;
-    int8_t nextPupilX;
-    int8_t nextPupilY;
+    int8_t xPupil;
+    int8_t yPupil;
+    int8_t xPupilNext;
+    int8_t yPupilNext;
     int8_t dX;
     int8_t dY;
     int32_t gazeTime;

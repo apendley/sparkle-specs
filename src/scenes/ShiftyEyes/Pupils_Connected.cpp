@@ -13,7 +13,8 @@ void Pupils_Connected::update(uint32_t dt) {
         int8_t yPupil = map(-report.y, -127, 127, -2, 10); 
         yPupil = min(yPupil, 7);
 
-        scene.eyes.setPupilPosition(xPupil, yPupil);        
+        scene.xPupil = xPupil;
+        scene.yPupil = yPupil;
     } 
     else {
         int8_t xPupil = map(-report.x, -127, 127, 1, 17);
@@ -21,6 +22,7 @@ void Pupils_Connected::update(uint32_t dt) {
         int8_t yPupil = map(-report.y, -127, 127, -3, 11) + 2;
         yPupil = min(yPupil, 11);
 
-        scene.eyes.setPupilPosition(xPupil, yPupil);
+        scene.xPupil = xPupil;
+        scene.yPupil = yPupil;
     }
 }
