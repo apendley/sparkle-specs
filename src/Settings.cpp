@@ -16,9 +16,9 @@ void Settings::begin(Adafruit_EEPROM_I2C* eep, bool eraseEeprom) {
     }
 
     if (eraseEeprom) {
-        LOGLN("Erasing eeprom...");
+        LOGLN("Erasing eeprom header...");
 
-        for (size_t i = 0; i < sizeof(MemoryMap); i++) {
+        for (size_t i = 0; i < sizeof(Header); i++) {
             if (!eep->write(i, 0)) {
                 LOGFMT("Error erasing eeprom at address 0x%X\n", i);
                 break;

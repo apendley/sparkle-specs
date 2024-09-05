@@ -25,7 +25,7 @@ private:
 
         uint8_t sceneIndex = 0;
 
-        uint8_t shiftyEyesHasMonsterPupils = false;
+        bool shiftyEyesHasMonsterPupils = false;
         uint16_t shiftyEyesRingHue = 10922;
         uint16_t shiftyEyesPupilHue = 0;
 
@@ -34,22 +34,22 @@ private:
         uint8_t beamSaturation = 255;
         uint8_t beamDisconnectedSpeed = 0;
 
-        uint16_t googlyRingsHue = (65536 / 6) * 5;
+        uint16_t googlyRingsHue = 54613;
         uint8_t googlyRingsSaturation = 255;
 
-        uint8_t audioBarsUseCustomColor = 0;
+        bool audioBarsUseCustomColor = 0;
         uint8_t audioBarsSnowCapped = 1;
         uint16_t audioBarsHue = 0;
         uint8_t audioBarsSaturation = 255;
 
-        uint8_t volumeMeterUseCustomColor = 0;
+        bool volumeMeterUseCustomColor = 0;
         uint16_t volumeMeterHue = 0;
         uint8_t volumeMeterSaturation = 255;
 
-        uint8_t sparklesUseCustomColor = 0;
+        bool sparklesUseCustomColor = 0;
         uint16_t sparklesHue = 0;
 
-        uint8_t marqueeUseCustomColor = 0;
+        bool marqueeUseCustomColor = 0;
         uint16_t marqueeHue = 0;
         uint8_t marqueeSaturation = 255;
         uint8_t marqueeScrollDelay = 25;

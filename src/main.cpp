@@ -36,7 +36,7 @@
 // #define LOGGER Serial
 #include "Logger.h"
 
-static const char* revision = "1.0.1";
+static const char* revision = "1.0.2";
 
 ////////////////////////////
 // Scene management
@@ -147,13 +147,14 @@ void readPdmData();
 void updateConnectionLeds();
 void updateBleUart();
 void updateBleUartTimeout();
-void updateUartCommandParser(char rxByte);
 
 void uartFlush();
-void uartCommandColor();
-void uartCommandButton();
-void uartCommandText();
-void uartCommandError();
+
+// callbacks
+void uartCommandColor(const Color::RGB& c);
+void uartCommandButtonEvent(const ButtonEvent& e);
+void uartCommandText(const char* text);
+void uartCommandError(const char* msg);
 
 void scanCallback(ble_gap_evt_adv_report_t* report);
 void centralConnectCallback(uint16_t connHandle);
@@ -313,10 +314,15 @@ void initSettings(bool eepromInitialized) {
 }
 
 void initBle() {
-    Bluefruit.autoConnLed(false);
-    Bluefruit.begin(1, 1);
+    // Set up the command parser
+    uartCommandParser.setColorCallback(uartCommandColor);
+    uartCommandParser.setButtonEventCallback(uartCommandButtonEvent);
+    uartCommandParser.setTextCallback(uartCommandText);
+    uartCommandParser.setErrorCallback(uartCommandError);
 
     // General setup
+    Bluefruit.autoConnLed(false);
+    Bluefruit.begin(1, 1);
     Bluefruit.setName(BLE_ADVERTISING_NAME);
     Bluefruit.setConnLedInterval(250);
 
@@ -716,26 +722,25 @@ void updateBleUart() {
 
     #if defined(LOGGER)
     if (bleUart.available()) {
-        LOGLN("BLE UART data available");
+        LOGLN("BLE UART packed received");
     }
     #endif
 
     while (bleUart.available()) {
-        char rxByte = bleUart.read();
-        updateUartCommandParser(rxByte);
-        bleUartLastRxTime = millis();    
+        uartCommandParser.rx(bleUart.read());
+        bleUartLastRxTime = millis();
     }
 }
 
 void updateBleUartTimeout() {
-    if (!uartCommandParser.isBusy()) {
+    if (uartCommandParser.isIdle()) {
         return;
     }
 
     uint32_t now = millis();
 
     if (now - bleUartLastRxTime > 1000) {
-        LOGLN("BleUartCommand timed out");
+        LOGLN("Command parsing timed out waiting for data");
         bleUartLastRxTime = now;
         uartCommandParser.reset();
     }    
@@ -743,68 +748,35 @@ void updateBleUartTimeout() {
 
 void uartFlush() {
     if (Bluefruit.connected() && bleUart.notifyEnabled()) {
+        LOGLN("Flushing BLE UART packet");
         while (bleUart.available()) {
             bleUart.read();
         }            
     }
 }
 
-void updateUartCommandParser(char rxByte) {
-    using UartCommand::ID;
+void uartCommandColor(const Color::RGB& c) {
+    LOGFMT("Received color: r: %d, g: %d, b: %d\n", c.r, c.g, c.b);
 
-    uartCommandParser.rx(rxByte);
-    
-    switch (uartCommandParser.getCommand()) {
-        case ID::none:
-            // No command yet.
-            break;
-                    
-        case ID::color:
-            uartCommandColor();
-            uartCommandParser.reset();
-            break;
-
-        case ID::buttonEvent:
-            uartCommandButton();
-            uartCommandParser.reset();
-            break;
-
-        case ID::text:
-            uartCommandText();
-            uartCommandParser.reset();
-            break;
-
-        case ID::error:
-            // There was an error processing the command.
-            uartCommandError();
-            uartCommandParser.reset();
-            uartFlush();
-            break;
-    }    
-}
-
-void uartCommandColor() {
     if (currentScene != nullptr) {
-        currentScene->receivedColor(uartCommandParser.readColor());
+        currentScene->receivedColor(c);
     }
 }
 
-void uartCommandButton() {
-    ButtonEvent buttonEvent = uartCommandParser.readButtonEvent();
-    softGamepad.event(buttonEvent);
+void uartCommandButtonEvent(const ButtonEvent& e) {
+    LOGFMT("Received button event: index: %d, state: %d\n", e.index, e.state);
+    softGamepad.event(e);
 }
 
-void uartCommandText() {
+void uartCommandText(const char* text) {
+    LOGFMT("Received text: %s\n", text);
+
     if (currentScene) {
-        UartCommand::ParamBuffer text;
-        uartCommandParser.readString(text);
-        LOGFMT("Received text: %s\n", text);
         currentScene->receivedText(text);
     }
 }
 
-void uartCommandError() {
-    UartCommand::ParamBuffer errorMessage;
-    uartCommandParser.readString(errorMessage);
-    LOGFMT("\nError: %s\n", errorMessage);
+void uartCommandError(const char* msg) {
+    LOGFMT("Error: %s\n", msg);
+    uartFlush();
 }

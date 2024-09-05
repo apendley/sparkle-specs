@@ -10,7 +10,6 @@ namespace UartCommand {
         color,
         buttonEvent,
         text,
-        error,
     };
 
     // Includes terminating null
@@ -24,58 +23,52 @@ namespace UartCommand {
     public:
         Parser() = default;
 
+        // Resets state machine
         void reset();
 
         // Call this for every byte read from incoming serial stream
-        void rx(char b);
-
-        // Returns true if parser has started parsing a command.
-        // Returns false if parser is in `waitForPrefix` or `complete` state
-        bool isBusy() const;
-
-        //////////////////////////////////////////////
-        // Command detection and parameter extraction
-        ////////////////////////////////////////////// 
-        // After calling rx(), call this to determine if a valid command has been recognized.
-        // If return value is ID::none, there is not a valid command ready.
-        ID getCommand() const;
-
-        // Otherwise, the parameters may be extracted using the functions below based on the parameter type.
-
-        // ID::buttonEvent
-        // Return the button event, or event with an invalid index if not in 'complete' state, 
-        // or if params are not valid.
-        ButtonEvent readButtonEvent() const;
-
-        // ID::color
-        // Returns black if not in 'complete' state, or if params are not valid.
-        Color::RGB readColor() const;
-
-        // ID::error
-        // Returns false and sets buffer[0] to the '\0' if if not in 'complete' state, or if params are not valid.
-        bool readString(char* buffer, size_t bufferSize) const;
-
-        inline bool readString(ParamBuffer& buffer) const {
-            return readString(buffer, paramBufferSize);
+        inline void rx(char b) {
+            (this->*rxMethod)(b);
         }
 
-    // RX methods
+        // Returns true if parser has not detected a command in the stream yet.
+        // Returns false once the parser begins parsing a command from the stream.
+        bool isIdle() const;
+
+        // Callbacks
+
+        void setColorCallback(void (*cb)(const Color::RGB&)) {
+            colorCallback = cb;
+        }
+
+        void setButtonEventCallback(void (*cb)(const ButtonEvent&)) {
+            buttonEventCallback = cb;
+        }
+
+        void setTextCallback(void (*cb)(const char*)) {
+            textCallback = cb;
+        }
+
+        void setErrorCallback(void (*cb)(const char*)) {
+            errorCallback = cb;
+        }
+
+private:
+    // State machine methods
     private:
-        // Sets error state, putting the message in the parameter buffer, and setting the parameter type to string.
-        void error(const char* message);        
-    
-        // State processing methods
         using RxMethod = void (Parser::*)(char);
         void rxWaitForPrefix(char rxByte);
         void rxWaitForCode(char rxByte);
         void rxReadBluefruit(char rxByte);
         void rxReadText(char rxByte);
-        void rxComplete(char rxByte);
-        void rxError(char rxByte);
+
+        void executeBluefruitCommand();
+        void executeTextCommand();
+        void executeError(const char* message);                        
 
     // Helpers
     private:
-        bool isChecksumValid(uint8_t checksum);
+        bool isBluefruitChecksumValid(uint8_t checksum);
 
     // Types
     private:
@@ -91,14 +84,9 @@ namespace UartCommand {
         };
 
         enum class ParamType: uint8_t {
-            // UartCommand::ButtonEvent
             buttonEvent,
-
-            // Color::RGB
             color,
-
-            // Pointer to string buffer of up to paramBufferSize bytes (including terminating null)
-            string
+            string,
         };    
 
         struct CommandDescription {
@@ -112,8 +100,14 @@ namespace UartCommand {
             Parser::ParamType paramType;
 
             // Number of bytes to read for parameters.
-            uint16_t paramLength;        
+            uint16_t paramLength;
         };
+
+    // Static data
+    private:
+        static const CommandDescription nullCommand;
+        static const CommandDescription bluefruitCommands[];
+        static const int bluefruitCommandsCount;
 
     // Member variables
     private:
@@ -123,10 +117,11 @@ namespace UartCommand {
         CmdType currentCommandType = CmdType::none;
         RxMethod rxMethod = &Parser::rxWaitForPrefix;;
 
-        static const CommandDescription nullCommand;
         CommandDescription currentCommand = nullCommand;
 
-        static const CommandDescription bluefruitCommands[];
-        static const int bluefruitCommandsCount;
+        void (*colorCallback)(const Color::RGB&) = nullptr;
+        void (*buttonEventCallback)(const ButtonEvent&) = nullptr;
+        void (*textCallback)(const char*) = nullptr;
+        void (*errorCallback)(const char*) = nullptr;
     };
 }

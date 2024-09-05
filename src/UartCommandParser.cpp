@@ -1,6 +1,10 @@
 #include <Arduino.h>
 #include "UartCommandParser.h"
 
+// Uncomment define below to enable debug logging in this file.
+// #define LOGGER Serial
+#include "Logger.h"
+
 //////////////////////////////////////////
 // Command descriptions
 //////////////////////////////////////////
@@ -31,47 +35,14 @@ namespace UartCommand {
         currentCommand = nullCommand;
     }
 
-    bool Parser::isBusy() const {
-        return (rxMethod != &Parser::rxWaitForPrefix) && (rxMethod != &Parser::rxComplete);
-    }
-        
-    void Parser::rx(char rxByte) {
-        // if (rxByte == '\n') {
-        //     Serial.println("<newline>");
-        // }
-        // else {
-        //     Serial.println(rxByte);
-        // }  
-
-        (this->*rxMethod)(rxByte);
-    }
-
-    ID Parser::getCommand() const {
-        if (rxMethod == &Parser::rxError) {
-            return ID::error;
-        }
-        
-        if (rxMethod != &Parser::rxComplete) {
-            return ID::none;
-        }
-        
-        switch (currentCommandType) {
-            case CmdType::bluefruit:
-                return currentCommand.identifier;
-
-            case CmdType::text:
-                return ID::text;
-
-            default:
-                return ID::none;
-        }
+    bool Parser::isIdle() const {
+        return rxMethod == &Parser::rxWaitForPrefix;
     }
 
     //////////////////////////////////////////
     // RX
     //////////////////////////////////////////
     void Parser::rxWaitForPrefix(char rxByte) {
-        // Probably a better way to do this
         switch (rxByte) {
             case char(CmdType::bluefruit):
                 currentCommandType = CmdType(rxByte);
@@ -84,7 +55,7 @@ namespace UartCommand {
                 break;
 
             default:
-                error("Unrecognized UART command");
+                executeError("Unrecognized UART command type");
                 break;
         };
     }
@@ -107,40 +78,43 @@ namespace UartCommand {
                 }
                 else {
                     // We don't recognize this command
-                    error("unrecognized Bluefruit Connect command\n");
+                    executeError("Unsupported Bluefruit command type");
                 }
             }
             break;
                 
             default:
-                error("Unrecognized command code type");
+                executeError("Unrecognized Bluefruit command type");
                 break;
         }
     }
     
     void Parser::rxReadBluefruit(char rxByte) {
-        // Serial.printf("rxPos: %d, rxByte: %d\n", rxPos, rxByte);
+        // LOGFMT("rxPos: %d, rxByte: %d\n", rxPos, rxByte);
 
         if ((rxPos + 1) >= currentCommand.paramLength) {
-            // rxByte should contain the checksum
-            // Serial.printf("checksum: %d, isValid: %d\n", rxByte, isChecksumValid(rxByte));
+            LOGFMT("Received checksum: %d\n", rxByte);
 
-            if (isChecksumValid(rxByte)) {
-                rxMethod = &Parser::rxComplete;
-            } else {
-                error("Invalid Bluefruit CRC");
+            // rxByte should contain the checksum
+            if (isBluefruitChecksumValid(rxByte)) {
+                executeBluefruitCommand();
+            } 
+            else {
+                executeError("Invalid Bluefruit checksum");
             }
-        } else {
+
+            return;
+        } 
+        else {
             paramBuffer[rxPos] = rxByte;
             rxPos++;
         }
     }
-    
+
     void Parser::rxReadText(char rxByte) {
         if (rxByte == '\n') {
-            // Serial.println("\nend of text");
             paramBuffer[rxPos] = 0;
-            rxMethod = &Parser::rxComplete;
+            executeTextCommand();
             return;
         }
 
@@ -148,76 +122,63 @@ namespace UartCommand {
         rxPos++;
 
         if (rxPos >= paramBufferSize) {
-            error("Parameter buffer full");
+            LOGLN("Param buffer full, truncating text.");
+
+            // cap the buffer with a null character and just send what we received
+            paramBuffer[paramBufferSize - 1] = 0;
+            executeTextCommand();
         }
     }
-    
-    void Parser::rxComplete(char rxByte) {
-        // All input is ignored until state is reset.
-    }
 
-    void Parser::rxError(char rxByte) {
-        // All input is ignored until state is reset.
-    }
+    void Parser::executeBluefruitCommand() {
+        switch (currentCommand.identifier) {
+            case ID::color: 
+                if (colorCallback) {
+                    Color::RGB c(paramBuffer[0], paramBuffer[1], paramBuffer[2]);
+                    colorCallback(c);
+                }
+                break;
 
-    void Parser::error(const char* message) {
-        if (message != nullptr) {
-            strcpy(paramBuffer, message);
+            case ID::buttonEvent: 
+                if (buttonEventCallback) {
+                    uint8_t buttonIndex = paramBuffer[0] - '0' - 1;
+                    bool pressed = paramBuffer[1] == '1';
+                    ButtonEvent e(buttonIndex, pressed);
+                    buttonEventCallback(e);
+                }
+                break;
+
+            default:
+                // The rest are handled elswhere, except for ID::none, which doesn't even make sense.
+                break;
         }
+
+        reset();
+    }
+
+    void Parser::executeTextCommand() {
+        if (textCallback) {
+            ParamBuffer buffer;
+            strncpy(buffer, paramBuffer, paramBufferSize);
+            buffer[paramBufferSize - 1] = 0;
+            textCallback(buffer);
+        }
+
+        reset();
+    }
+
+    void Parser::executeError(const char* message) {
+        if (errorCallback) {
+            errorCallback(message);
+        }
+
+        reset();
+    }
         
-        currentCommand = nullCommand;
-        rxMethod = &Parser::rxError;
-    }
-        
-
-    //////////////////////////////////////////
-    // Parameter extraction
-    //////////////////////////////////////////
-    ButtonEvent Parser::readButtonEvent() const {
-        if (rxMethod != &Parser::rxComplete || currentCommand.paramType != ParamType::buttonEvent) {
-            return ButtonEvent();
-        }
-
-        uint8_t buttonIndex = paramBuffer[0] - '0' - 1;
-        bool pressed = paramBuffer[1] == '1';
-        return ButtonEvent(buttonIndex, pressed);
-    }
-
-
-    Color::RGB Parser::readColor() const {
-        if (rxMethod != &Parser::rxComplete || currentCommand.paramType != ParamType::color) {
-            return Color::RGB();
-        }
-        
-        uint8_t red = paramBuffer[0];
-        uint8_t green = paramBuffer[1];
-        uint8_t blue = paramBuffer[2];
-        return Color::RGB(red, green, blue);
-    }
-
-    bool Parser::readString(char* buffer, size_t bufferSize) const {
-        bool isStateAllowed = (rxMethod == &Parser::rxComplete) || (rxMethod == &Parser::rxError);
-        
-        if (isStateAllowed == false || currentCommand.paramType != ParamType::string) {
-            buffer[0] = 0;
-            return false;
-        }
-
-        if (paramBuffer[0] == 0) {
-            buffer[0] = 0;
-            return false;
-        }
-
-        size_t minBufferSize = min(bufferSize, paramBufferSize);
-        strncpy(buffer, paramBuffer, minBufferSize);
-        buffer[minBufferSize - 1] = 0;
-        return true;
-    }
-
     //////////////////////////////////////////
     // helpers
     //////////////////////////////////////////
-    bool Parser::isChecksumValid(uint8_t checksum) {
+    bool Parser::isBluefruitChecksumValid(uint8_t checksum) {
         uint8_t sum = 0;
 
         // We already know this is a bluefruit command, so add the sentinel value and command code.
@@ -230,7 +191,7 @@ namespace UartCommand {
         }
 
         uint8_t crc = checksum & ~sum;
-        // Serial.printf("Calculated crc: %d\n", crc);
+        LOGFMT("Calculated checksum: %d\n", crc);
         return checksum == crc;        
     }
 }

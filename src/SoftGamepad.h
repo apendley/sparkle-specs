@@ -25,10 +25,6 @@ public:
     }
 
     void event(const ButtonEvent& event) {
-        if (event.index == ButtonEvent::invalidIndex) {
-            return;
-        }
-
         if (event.state) {
             pressed |= (1 << event.index);
         } else {
