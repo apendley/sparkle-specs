@@ -5,11 +5,7 @@ AudioBarsScene::AudioBarsScene(Device& d) :
     Scene(d),
     spectrumizer(10, 70)
 {
-    for (int i = 0; i < columnCount; i++) {
-        columnColors[i] = Color::HSV(57600UL * i / columnCount, 255, brightness)
-            .toRGB()
-            .packed565();
-    }
+
 }
 
 void AudioBarsScene::enter() {
@@ -59,13 +55,24 @@ void AudioBarsScene::update(uint32_t dt) {
 
 void AudioBarsScene::draw() {
     Glasses& glasses = getDevice().glasses;
+    Settings& settings = getDevice().settings;
 
     glasses.fill(0);
+
+    uint8_t brightness = map(settings.sceneBrightness(), 0, 255, 32, 255);
+    // Serial.printf("%d, %d\n", settings.sceneBrightness(), brightness);
 
     uint16_t rgbOverride = Color::HSV(uint16_t(hue), saturation, brightness).toRGB().packed565();
 
     // Reduce brightness of pure white, because it's a lot brighter than other colors.
     uint16_t defaultDotColor = Color::RGB::gray(brightness).scaled(90).packed565();
+
+    uint16_t columnColors[columnCount];
+    for (int i = 0; i < columnCount; i++) {
+        columnColors[i] = Color::HSV(57600UL * i / columnCount, 255, brightness)
+            .toRGB()
+            .packed565();
+    }    
 
     for (int columnIndex = 0; columnIndex < columnCount; columnIndex++) {
         int xDisplay;

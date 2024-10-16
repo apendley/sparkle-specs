@@ -83,6 +83,26 @@ void Settings::setSceneIndex(uint8_t i) {
     write(offsetof(MemoryMap, sceneIndex), i, "Scene index saved!");
 }
 
+void Settings::increaseSceneBrightness(uint8_t amount) {
+    int16_t b = memoryMap.sceneBrightness[memoryMap.sceneIndex] + amount;
+    b = max((int16_t)0, min((int16_t)255, b));
+    memoryMap.sceneBrightness[memoryMap.sceneIndex] = b;
+    uint8_t address = sizeof(memoryMap.header) + sizeof(memoryMap.sceneIndex) + memoryMap.sceneIndex;
+    write(address, memoryMap.sceneBrightness[memoryMap.sceneIndex], "Increased current scene brightness!");
+}
+
+void Settings::decreaseSceneBrightness(uint8_t amount) {
+    int16_t b = memoryMap.sceneBrightness[memoryMap.sceneIndex] - amount;
+    b = max((int16_t)0, min((int16_t)255, b));
+    memoryMap.sceneBrightness[memoryMap.sceneIndex] = b;
+    uint8_t address = sizeof(memoryMap.header) + sizeof(memoryMap.sceneIndex) + memoryMap.sceneIndex;
+    write(address, memoryMap.sceneBrightness[memoryMap.sceneIndex], "Decreased current scene brightness!");
+}
+
+uint8_t Settings::sceneBrightness() const {
+    return memoryMap.sceneBrightness[memoryMap.sceneIndex];
+}
+
 uint16_t Settings::shiftyEyesGetRingHue() {
     return memoryMap.shiftyEyesRingHue;
 }

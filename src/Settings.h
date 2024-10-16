@@ -7,23 +7,33 @@ class Adafruit_EEPROM_I2C;
 
 class Settings {
 public:
+    static constexpr uint8_t sceneCount = 7;
+
     static constexpr uint8_t textBufferSize = 128;
     typedef char Text[textBufferSize];
 
+    // 32 = 8 brightness settings
+    static constexpr uint8_t defaultBrightnessIncrement = 32;
+
 private:
     struct Header {
-        // Help verify that we've written to the eeprom before
+        // Help verify that we've written to the eeprom before.
+        // Provides a method of invalidatin g previously written data.
         uint32_t signature;
 
         // Increment this every time you make a change to the 
-        // memory map to invalidate previously saved data.
+        // memory map to invalidate previously saved data when developing.
         uint16_t version;
     } __attribute__((packed));
 
     struct MemoryMap {
-        Header header = {0x3141, 4};
+        Header header = {0xBEEF, 1};
 
         uint8_t sceneIndex = 0;
+
+        // Careful; we're manually calculating the address for each mode's brightness when writing to the EEPROM.
+        // If any variables are added above this, their size will need to be added to the base scene brightness address.
+        uint8_t sceneBrightness[sceneCount] = {192, 159, 128, 96, 32, 64, 96};
 
         bool shiftyEyesHasMonsterPupils = false;
         uint16_t shiftyEyesRingHue = 10922;
@@ -66,6 +76,10 @@ public:
 
     uint8_t sceneIndex() const;
     void setSceneIndex(uint8_t i);
+
+    uint8_t sceneBrightness() const;
+    void increaseSceneBrightness(uint8_t amount = defaultBrightnessIncrement);    
+    void decreaseSceneBrightness(uint8_t amount = defaultBrightnessIncrement);
 
     uint16_t shiftyEyesGetRingHue();
     void shiftyEyesSetRingHue(uint16_t h);

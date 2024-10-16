@@ -88,6 +88,9 @@ void MarqueeScene::update(uint32_t dt) {
         canvas->fillScreen(0);
         canvas->setCursor(scrollPosition, canvas->height());
 
+        uint8_t brightness = map(settings.sceneBrightness(), 0, 255, 100, 255);
+        // Serial.printf("%d, %d\n", settings.sceneBrightness(), brightness);
+
         uint32_t len = strlen(messageBuffer);
 
         if (useCustomColor) {

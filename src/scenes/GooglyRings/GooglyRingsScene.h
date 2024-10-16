@@ -24,7 +24,6 @@ public:
     Pendulum rightPendulum;
     float hue = (65536 / 6) * 5;
     uint8_t saturation = 255;
-    uint8_t brightness = 150;
 
 private:
     void draw();

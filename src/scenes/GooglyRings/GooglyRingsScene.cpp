@@ -63,6 +63,10 @@ void GooglyRingsScene::update(uint32_t dt) {
 
 void GooglyRingsScene::draw() {
     Glasses& glasses = getDevice().glasses;
+    Settings& settings = getDevice().settings;
+
+    uint8_t brightness = map(settings.sceneBrightness(), 0, 255, 80, 240);
+    // Serial.printf("%d, %d\n", settings.sceneBrightness(), brightness);
     Color::RGB color = Color::HSV(hue, saturation, brightness).toRGB();
     drawRing(leftPendulum, glasses.left_ring, color);
     drawRing(rightPendulum, glasses.right_ring, color);

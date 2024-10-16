@@ -528,6 +528,12 @@ void updateModeSelection(uint32_t dt) {
     else if (softGamepad.wasPressed(softGamepad.buttonLeft)) {
         previousScene();
     } 
+    else if (softGamepad.wasPressed(softGamepad.buttonUp)) {
+        settings.increaseSceneBrightness();
+    }
+    else if (softGamepad.wasPressed(softGamepad.buttonDown)) {
+        settings.decreaseSceneBrightness();
+    }
 }
 
 void updateNunchuck() {

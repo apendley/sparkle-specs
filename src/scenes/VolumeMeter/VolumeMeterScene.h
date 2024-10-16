@@ -31,5 +31,4 @@ private:
     bool useCustomColor = false;
     float hue = (65536 / 6) * 3.0;
     float saturation = 255;
-    uint8_t brightness = 128;    
 };

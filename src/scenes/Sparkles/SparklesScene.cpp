@@ -70,6 +70,9 @@ void SparklesScene::update(uint32_t dt) {
         newSparkleTimer = random(minSpawnInterval, maxSpawnInterval);
 
         // Brighten sparkle based on intensity.
+        uint8_t maxBrightness = map(settings.sceneBrightness(), 0, 255, 128, 255);
+        uint8_t minBrightness = maxBrightness / 2;
+        // Serial.printf("%d, %d, %d\n", settings.sceneBrightness(), minBrightness, maxBrightness);                
         uint16_t brightness = minBrightness + (intensity * intensity * (maxBrightness - minBrightness));
 
         // The higher the intensity, the more sparkles spawn.
