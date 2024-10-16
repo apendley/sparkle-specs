@@ -39,7 +39,6 @@ public:
 
     float hue = 0;
     uint8_t saturation = 255;
-    uint8_t brightness = 160;
 
     FSM beamFSM;
 

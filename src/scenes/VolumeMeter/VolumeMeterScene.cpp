@@ -53,12 +53,14 @@ void VolumeMeterScene::update(uint32_t dt) {
 
 void VolumeMeterScene::draw() {
     Glasses& glasses = getDevice().glasses;
+    Settings& settings = getDevice().settings;
 
     float value = minValue + (magnitude / invScale) * (maxValue - minValue);
     value = min(value, maxValue);
     uint8_t numLights = (uint8_t)value;
     // Serial.printf("mag: %f, value: %f, numLights: %d\n", magnitude, value, numLights);
-
+    uint8_t brightness = map(settings.sceneBrightness(), 0, 255, 64, 255);
+    // Serial.printf("%d, %d\n", settings.sceneBrightness(), brightness);
     uint32_t rgbOverride = Color::HSV(hue, saturation, brightness).toRGB().gammaApplied().packed();
 
     glasses.left_ring.fill(0);

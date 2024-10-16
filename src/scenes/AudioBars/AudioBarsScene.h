@@ -26,12 +26,9 @@ private:
     static constexpr int columnCount = 16;
     ColumnSpectrumizer<columnCount, PdmRecorder::sampleCount> spectrumizer;
 
-    uint16_t columnColors[columnCount];
-
     bool useCustomColor = false;
     float hue = 0;
     uint8_t saturation = 255;
-    uint8_t brightness = 40;
 
     bool snowCapped = true;
 };

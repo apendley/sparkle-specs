@@ -35,7 +35,6 @@ private:
     bool useCustomColor = false;
     float hue = 0;
     uint8_t saturation = 255;
-    uint8_t brightness = 150;
 
     static constexpr float minScrollDelay = 15.0;
     static constexpr float defaultScrollDelay = 25.0;    

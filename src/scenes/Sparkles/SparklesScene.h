@@ -31,8 +31,6 @@ private:
 
     static constexpr int16_t minTimeToLive = 400;
     static constexpr int16_t maxTimeToLive = 800;
-    static constexpr uint8_t minBrightness = 80;
-    static constexpr uint8_t maxBrightness = 150;
 
     struct Sparkle {
         Sparkle() { }

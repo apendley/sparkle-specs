@@ -42,10 +42,7 @@ private:
     void drawEyeOutlines();
 
 private:
-    static constexpr uint8_t pupilBrightness = 220;
     float pupilHue = 0;
-
-    static constexpr uint8_t ringBrightness = 100;
     float ringHue = 10922;
 
     // 0 = fully open, maxEyelidPosition = fully closed

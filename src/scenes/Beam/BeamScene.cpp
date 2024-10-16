@@ -75,10 +75,13 @@ void BeamScene::update(uint32_t dt) {
 
 void BeamScene::draw() {
     Glasses& glasses = getDevice().glasses;
+    Settings& settings = getDevice().settings;
 
     int32_t x = int32_t(xCurrent);
     int32_t y = int32_t(yCurrent);
 
+    uint8_t brightness = map(settings.sceneBrightness(), 0, 255, 100, 200);
+    // Serial.printf("%d, %d\n", settings.sceneBrightness(), brightness);
     Color::RGB beamColor = Color::HSV(int(hue), saturation, brightness).toRGB();
 
     switch (beamMode) {
